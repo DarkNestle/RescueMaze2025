@@ -1,0 +1,43 @@
+def Map(AllCoord, Static=False):
+    # Объявление переменных
+    maxX = 0
+    minX = 0
+    maxY = 0
+    minY = 0
+    
+    # Определение максимального масштаба, чтобы отобразить
+    # все изученные координаты
+    for i in range(len(AllCoord)):
+        if maxX < AllCoord[i-1][0]:
+            maxX = AllCoord[i-1][0]
+        elif minX > AllCoord[i-1][0] and AllCoord[i-1][0] < 0:
+            minX = AllCoord[i-1][0]
+        
+        if maxY < AllCoord[i-1][1]:
+            maxY = AllCoord[i-1][1]
+        elif minY > AllCoord[i-1][1] and AllCoord[i-1][1] < 0:
+            minY = AllCoord[i-1][1]
+    
+    # Постоянный режим
+    if Static:
+        size = 7
+        minY = -size
+        maxY = size
+        minX = -size
+        maxX = size
+    
+    # Отображение в командной строке
+    for i in range(minY - 1, maxY + 2):
+        for j in range(minX - 1, maxX + 2):
+            if i == minY - 1 or i == maxY + 1: # Создание рамки
+                print('___', end=' ')
+            elif j == minX - 1 :
+                print('|  ', end=' ')
+            elif j == maxX + 1:
+                print('  |', end=' ')
+            else:
+                if [j, i] in AllCoord:         # Отображение изученных координат
+                    print('[ ]', end=' ')
+                else:
+                    print('   ', end=' ')
+        print()
