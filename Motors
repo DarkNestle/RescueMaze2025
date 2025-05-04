@@ -1,5 +1,8 @@
 from adafruit_servokit import ServoKit
 from time import sleep
+import board
+
+i2c = board.I2C()
 
 class Motors:
     # Инициализация PCA9685
