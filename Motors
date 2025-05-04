@@ -1,0 +1,42 @@
+from adafruit_servokit import ServoKit
+from time import sleep
+
+class Motors:
+    # Инициализация PCA9685
+    def __init__(self, name, i2c):
+        self.name = name
+        print("Инициализируем ", self.name)
+        try:
+            self.i2c = ServoKit(channels=16, i2c=i2c)
+            print("Успешно")
+            sleep(0.005)
+        except:
+            print(self.name, " не инициализирован")
+            quit()
+
+    # Движение робота
+    def Move(self, drct, speed=0.7):
+        ort = {                                  # параметры, для колёс
+            0: (0.1, 0.1, 0.1, 0.1),             # стоп
+            1: [speed, -speed, speed, -speed],   # вперед
+            2: [-speed, -speed, speed, speed],   # влево
+            3: [speed, speed, -speed, -speed],   # вправо
+            4: [-speed, speed, -speed, speed],   # назад
+            5: [speed, speed, speed, speed],     # по часовой
+            6: [-speed, -speed, -speed, -speed], # против часовой
+            7: [speed, 0.1, 0.1, -speed],        # по диагонали влево
+            8: [0.1, -speed, speed, 0.1]         # по диагонали вправо
+        }
+
+        drive = ort.get(drct)
+
+        for i in range(4):
+            self.i2c.continuous_servo[i + 4].throttle = drive[i]
+
+    # Сброс аптечек
+    def MedKit(self):
+        self.i2c.servo[15].angle = 30
+        sleep(0.5)
+        self.i2c.servo[15].angle = 145
+        sleep(0.5)
+        self.i2c.servo[15].angle = 30
