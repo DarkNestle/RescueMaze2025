@@ -1,0 +1,82 @@
+from picamera2 import Picamera2
+import cv2
+import numpy as np
+
+class Camera:
+    # Инициализируем камеру
+    def __init__(self, name, num=0):
+        self.num = Picamera2(num)
+        self.name = name
+        self.configuration()
+        
+    def configuration(self):
+        print("Инициализируем", self.name)
+        try:
+            # (0, 0, 0) нужно заменить на HSV того цвета, который вы хотите найти с помощью камеры
+            lw_red = np.array((0,0,0), np.unit8)
+            up_red = np.array((0,0,0), np.unit8)
+            lw_ylw = np.array((0,0,0), np.unit8)
+            up_ylw = np.array((0,0,0), np.unit8)
+            lw_grn = np.array((0,0,0), np.unit8)
+            up_grn = np.array((0,0,0), np.unit8)
+            lw = [lw_red, lw_ylw, lw_grn]
+            up = [up_red, up_ylw, up_grn]
+            name = ["Red", "Yellow", "Green"]
+
+            pc.preview_configuration.main.size = (360, 360)
+            pc.preview_configuration.main.format = "RGB888"
+            pc.preview_configuration.align()
+            pc.configure("preview")
+            pc.start()
+            print("Успешно")
+            sleep(0.05)
+        except:
+            print(self.name, "не инициализирована")
+            quit()
+
+    # Функция захвата видео и вывода на экран
+    def stream(self):
+        img = self.i2c.capture_array()
+        img = cv2.rotate(img, cv2.ROTATE_180)
+        cv2.imShow("Left", img)
+        cv2.imShow("Right", img)
+
+    # Нахождение цветовых жертв на стенах лабиринта
+    def Color(self):
+        # захват кадра
+        img = self.i2c.capture_array()
+
+        # вращение этого кадра на 180 градусов, т. к. у нас камера перевернута
+        img = cv2.rotate(img, cv2.ROTATE_180)
+
+        # преобразование кадра из BGR в HSV
+        hsv = cv2.cvtColor(img, BGR2HSV)
+        for i in range(3):
+            # ищем нужные цвета на кадре
+            mask = cv2.inRange(hsv, lw[i], up[i])
+
+            # ищем контуры найденого нами цвета
+            cntrs, hier = cv2.findCountours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            for cntr in cntrs:
+                # ищем площадь этого контура
+                area = cv2.contourArea(cntr)
+                if area > 1000:
+                    # если площадь цвета большая, значит узнаем что это за цвет и делаем то, что нужно
+                    if name[i] == "Red":
+                        led.alaram_victim()
+                        pca.MedKit()
+                        pca.MedKit()
+                    elif name[i] == "Yellow":
+                        led.alaram_victim()
+                        pca.MedKit()
+                    else:
+                        led.alaram_victim()
+                    # рисуем контуры на кадре
+                    cv2.drawContours(img, cntr, -1, (0,255,0), 2)
+
+                    # добавляем текст на кадр, чтобы мы понимали какой цвет камера нашла
+                    cv2.putText(img, name[i], (x,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        # выводим результат на экран
+        cv2.imShow("Left", img)
+        cv2.imShow("Right", img)
