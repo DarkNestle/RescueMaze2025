@@ -1,0 +1,20 @@
+from gpiozero import LED
+
+class Led:
+    def __init__(self, pin):
+        self.pin = pin
+        self.led = LED(self.pin)
+    
+    def alarm_victim(self):
+        for i in range(3):
+            self.led.on()
+            sleep(0.5)
+            self.led.off()
+            sleep(0.5)
+    
+    def alarm_finish(self):
+        for i in range(3):
+            self.led.on()
+            sleep(1)
+            self.led.off()
+            sleep(1)
