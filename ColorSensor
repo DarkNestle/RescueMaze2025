@@ -1,0 +1,36 @@
+import adafruit_tcs34725
+from time import sleep
+import board
+
+i2c = board.I2C()
+
+class ColorSensor:
+    # Инициализация TCS34725
+    def __init__(self, name, i2c, black, blue, red):
+        self.name = name
+        self.black = black
+        self.blue = blue
+        self.red = red
+        print("Инициализируем ", self.name)
+        try:
+            self.i2c = adafruit_tcs34725.TCS3725(i2c)
+            print("Успешно")
+            sleep(0.005)
+        except:
+            print(self.name, " не инициализирован") 
+            quit()
+
+    # Получение цвета пола под роботом
+    def get_color(self):
+        temp = self.i2c.color_temperature
+        if temp < self.black:
+            print("Black")
+            return "Black"
+        elif temp < self.blue and temp > self.black:
+            print("Blue")
+            return "Blue"
+        elif temp > self.blue and temp < self.red:
+            print("Red")
+            return "Red"
+        else:
+            return "White"
